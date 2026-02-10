@@ -1,11 +1,12 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from './index';
 
-// Modelo pensado para futuras evaluaciones (precio > 0)
 interface ProductAttributes {
   id: number;
   nombre: string;
+  codigo: string;
   precio: number;
+  descripcion: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -18,7 +19,9 @@ class Product
 {
   public id!: number;
   public nombre!: string;
+  public codigo!: string;
   public precio!: number;
+  public descripcion!: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -35,6 +38,11 @@ Product.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    codigo: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
     precio: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
@@ -44,6 +52,10 @@ Product.init(
           msg: 'El precio debe ser mayor a 0',
         },
       },
+    },
+    descripcion: {
+      type: DataTypes.TEXT,
+      allowNull: false,
     },
   },
   {

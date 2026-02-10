@@ -86,11 +86,15 @@
         const data = await response.json();
 
         if (response.ok) {
-          loginMessage.textContent = 'Inicio de sesión exitoso.';
+          loginMessage.textContent = 'Inicio de sesión exitoso. Redirigiendo...';
           loginMessage.className = 'mb-2 text-success';
           if (data.token) {
             localStorage.setItem('authToken', data.token);
           }
+          // Redirigimos a la vista de productos
+          setTimeout(() => {
+            window.location.href = '/productos';
+          }, 600);
         } else {
           loginMessage.textContent = data.mensaje || 'Error al iniciar sesión.';
           loginMessage.className = 'mb-2 text-danger';

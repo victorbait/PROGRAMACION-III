@@ -81,6 +81,13 @@ export const login: RequestHandler = async (req, res) => {
       }
     );
 
+    // Guardamos el token en una cookie httpOnly para proteger rutas del lado del servidor
+    res.cookie('token', token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 1000, // 1 hora
+    });
+
     res.json({ token });
     return;
   } catch (error: any) {

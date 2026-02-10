@@ -1,16 +1,20 @@
 import express from 'express'; // Importamos la dependencia de express
 import path from 'path'; // Para manejar rutas
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes';
+import productRoutes from './routes/productRoutes';
 import sequelize from './models/index';
+import Product from './models/Product';
 import './models/User';
-import './models/Product';
 
 const app = express(); // Inicializamos express
 
 // Middlewares globales
 app.use(cors());
 app.use(express.json()); // Para trabajar con JSON (APIs)
+app.use(express.urlencoded({ extended: true })); // Para formularios HTML
+app.use(cookieParser());
 
 // Configuramos el motor de plantillas
 app.set('view engine', 'ejs'); // Usamos ejs como motor
@@ -36,13 +40,48 @@ app.get('/register', (req, res) => {
 // Rutas de autenticación (API REST)
 app.use('/api/auth', authRoutes);
 
+// Rutas de productos (protegidas por middleware dentro del router)
+app.use('/', productRoutes);
+
 // Configuramos el puerto
 const PORT = process.env.PORT || 3000;
 
-// Sincronizamos la base de datos y luego arrancamos el servidor
-sequelize.sync()
-  .then(() => {
+// Pequeño seeder de productos iniciales
+async function seedProductosIniciales() {
+  const productosBase = [
+    {
+      nombre: 'Máquina Wahl Senior',
+      codigo: 'WAHL-SENIOR',
+      precio: 120.0,
+      descripcion: 'Máquina profesional Wahl Senior para degradados y cortes de precisión.',
+    },
+    {
+      nombre: 'Cera Mate Pomade',
+      codigo: 'POMADE-MATTE',
+      precio: 18.5,
+      descripcion: 'Cera pomada mate para peinados con textura y fijación media.',
+    },
+    {
+      nombre: 'Aceite Premium para Barba',
+      codigo: 'ACEITE-BARBA',
+      precio: 15.0,
+      descripcion: 'Aceite nutritivo para barba con aroma amaderado y acabado suave.',
+    },
+  ];
+
+  for (const prod of productosBase) {
+    await Product.findOrCreate({
+      where: { codigo: prod.codigo },
+      defaults: prod,
+    });
+  }
+}
+
+// Sincronizamos la base de datos (alter true para adaptar cambios de columnas) y luego arrancamos el servidor
+sequelize.sync({ alter: true })
+  .then(async () => {
     console.log('Base de datos sincronizada correctamente');
+    await seedProductosIniciales();
     app.listen(PORT, () => {
       console.log(`Servidor corriendo en el puerto ${PORT}`);
     });
