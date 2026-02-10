@@ -4,9 +4,11 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes';
 import productRoutes from './routes/productRoutes';
+import cartRoutes from './routes/cartRoutes';
 import sequelize from './models/index';
 import Product from './models/Product';
 import './models/User';
+import './models/Cart';
 
 const app = express(); // Inicializamos express
 
@@ -42,6 +44,9 @@ app.use('/api/auth', authRoutes);
 
 // Rutas de productos (protegidas por middleware dentro del router)
 app.use('/', productRoutes);
+
+// Rutas de carrito
+app.use('/', cartRoutes);
 
 // Configuramos el puerto
 const PORT = process.env.PORT || 3000;
